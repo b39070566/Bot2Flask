@@ -33,10 +33,12 @@ from bs4 import BeautifulSoup
 import phonetic as ph
 from phonetic import read
 
+import openai
 
 app = Flask(__name__)
 
 # get channel_secret and channel_access_token from your environment variable
+openai_key = os.getenv('OPENAI_KEY', None)
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 if channel_secret is None:
@@ -51,6 +53,8 @@ parser = WebhookParser(channel_secret)
 
 
 ph_function = False
+gpt_mode = False
+
 class WordGuessingGame:
     def __init__(self):
         self.playing = False
@@ -107,6 +111,21 @@ class NumberGuessingGame:
             return TextSendMessage(text="猜中了! 你總共猜了{}次".format(self.counting_number))
 
 number_guessing_game = NumberGuessingGame()
+
+def gpt( api_key, word ):
+    openai.api_key = api_key 
+
+    response = openai.ChatCompletion.create(
+      model = "gpt-3.5-turbo",
+      temperature = 0.9,
+      max_tokens = 100,
+      messages = [
+        {"role": "user", "content": word }
+      ]
+    )
+
+    gpt_says = (response['choices'][0]['message']['content'])
+    return gpt_says
 
 def getNews(n=10):
     url = "https://www.cna.com.tw/list/aall.aspx"
@@ -176,7 +195,7 @@ def getInvoice():
 @app.route("/callback", methods=['POST'])
 def callback():
     global ph_function
-    global play_nums, ranums  # Use the global keyword
+    global gpt_mode
 
     if request.method == 'POST':
         signature = request.headers['X-Line-Signature']
@@ -210,6 +229,22 @@ def callback():
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextSendMessage(text="注音模式已開啟"))
+
+                elif msg == "GPT":
+                    if gpt_mode:
+                        gpt_mode = False
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text="AI模式已關閉"))
+                    else:
+                        gpt_mode = True
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text="AI模式已開啟"))
+
+                elif gpt_mode:
+                    returned_message = gpt(msg)
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=gpt_says))
 
                 elif ph_function:
                     returned_message = ph.read(msg)
