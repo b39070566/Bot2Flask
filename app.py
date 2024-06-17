@@ -173,7 +173,8 @@ def getInvoice():
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    ph_function = False
+    global ph_function
+    ph ph_function = False
     global play_nums, ranums  # Use the global keyword
 
     if request.method == 'POST':
@@ -212,7 +213,6 @@ def callback():
                 elif ph_function:
                     returned_message = ph.read(msg)
                     line_bot_api.reply_message(event.reply_token, returned_message)
-
 
                 elif number_guessing_game.playing and msg.isdigit():
                     returned_message = number_guessing_game.guess(msg)
