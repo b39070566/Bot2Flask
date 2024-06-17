@@ -13,6 +13,6 @@ def read(word):
         phone = [e.text for e in phones]
         s = " ".join( phone )
     # s = row.find('sub')
-        return chinese + " ==> " + s
+        return TextSendMessage(text= chinese + " ==> " + s )
     except:
-        return '查無此字' 
+        return TextSendMessage(text="查無此字")
