@@ -244,7 +244,7 @@ def callback():
                             TextSendMessage(text="AI模式已開啟"))
 
                 elif gpt_mode:
-                    returned_message = gpt(msg)
+                    returned_message = gpt(openai_key,msg)
                     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=gpt_says))
 
                 elif ph_function:
