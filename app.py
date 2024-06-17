@@ -49,6 +49,8 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 parser = WebhookParser(channel_secret)
 
+
+ph_function = False
 class WordGuessingGame:
     def __init__(self):
         self.playing = False
@@ -173,8 +175,7 @@ def getInvoice():
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    global ph_function
-    ph ph_function = False
+    
     global play_nums, ranums  # Use the global keyword
 
     if request.method == 'POST':
