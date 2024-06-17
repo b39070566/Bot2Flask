@@ -30,8 +30,9 @@ from linebot.models import MessageEvent, TextSendMessage, StickerSendMessage, Im
 import requests
 from bs4 import BeautifulSoup
 
-from phonetic as ph
+import phonetic as ph
 from phonetic import read
+
 
 app = Flask(__name__)
 
@@ -172,6 +173,7 @@ def getInvoice():
 
 @app.route("/callback", methods=['POST'])
 def callback():
+    phonetic = False
     global play_nums, ranums  # Use the global keyword
 
     if request.method == 'POST':
