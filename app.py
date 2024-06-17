@@ -231,7 +231,7 @@ def callback():
                             event.reply_token,
                             TextSendMessage(text="注音模式已開啟"))
 
-                elif msg == "GPT" or "gpt":
+                elif msg == "GPT" or msg == "gpt":
                     if gpt_mode:
                         gpt_mode = False
                         line_bot_api.reply_message(
