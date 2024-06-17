@@ -115,7 +115,7 @@ number_guessing_game = NumberGuessingGame()
 def gpt( api_key, word ):
     openai.api_key = api_key 
 
-    response = openai.chat.completions.create(
+    response = openai.ChatCompletion.create(
       model = "gpt-3.5-turbo",
       temperature = 0.9,
       max_tokens = 100,
@@ -231,7 +231,7 @@ def callback():
                             event.reply_token,
                             TextSendMessage(text="注音模式已開啟"))
 
-                elif msg == "GPT" or msg == "gpt":
+                elif msg.lower() == "gpt":
                     if gpt_mode:
                         gpt_mode = False
                         line_bot_api.reply_message(
