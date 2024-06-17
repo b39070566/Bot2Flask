@@ -209,7 +209,7 @@ def callback():
                             event.reply_token,
                             TextSendMessage(text="注音模式已開啟"))
 
-                elif ph_function and msg.isalpha():
+                elif ph_function:
                     returned_message = ph.read(msg)
                     line_bot_api.reply_message(event.reply_token, returned_message)
 
