@@ -175,7 +175,7 @@ def getInvoice():
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    
+    global ph_function
     global play_nums, ranums  # Use the global keyword
 
     if request.method == 'POST':
