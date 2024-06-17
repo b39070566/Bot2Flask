@@ -211,8 +211,8 @@ def callback():
                             event.reply_token,
                             TextSendMessage(text="注音模式已開啟"))
 
-                elif ph_function:
-                    returned_message = ph.read(msg)
+                elif msg == "單字":
+                    returned_message = ph.read("單字")
                     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=returned_message))
 
                 elif number_guessing_game.playing and msg.isdigit():
