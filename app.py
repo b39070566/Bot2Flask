@@ -115,7 +115,7 @@ number_guessing_game = NumberGuessingGame()
 def gpt( api_key, word ):
     openai.api_key = api_key 
 
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
       model = "gpt-3.5-turbo",
       temperature = 0.9,
       max_tokens = 100,
