@@ -14,6 +14,6 @@ def read(word):
         s = " ".join( phone )
         word = (f"{chinese} ==> {s}")
     # s = row.find('sub')
-        return TextSendMessage(text=word)
+        return word
     except:
-        return TextSendMessage(text="查無此字")
+        return "查無此字"

@@ -213,7 +213,7 @@ def callback():
 
                 elif ph_function:
                     returned_message = ph.read(msg)
-                    line_bot_api.reply_message(event.reply_token, returned_message)
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=returned_message))
 
                 elif number_guessing_game.playing and msg.isdigit():
                     returned_message = number_guessing_game.guess(msg)
