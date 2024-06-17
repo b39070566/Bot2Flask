@@ -173,7 +173,7 @@ def getInvoice():
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    phonetic = False
+    ph_function = False
     global play_nums, ranums  # Use the global keyword
 
     if request.method == 'POST':
@@ -197,21 +197,22 @@ def callback():
                     returned_message = number_guessing_game.start_game()
                     line_bot_api.reply_message(event.reply_token, returned_message)
                 
-                elif msg =="注音" and phonetic == False:
-                    phonetic = True
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text="注音模式已開啟"))
+                elif msg == "注音":
+                    if ph_function:
+                        ph_function = False
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text="注音模式已關閉"))
+                    else:
+                        ph_function = True
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text="注音模式已開啟"))
 
-                elif msg.isalpha() and phonetic == True:
+                elif ph_function and msg.isalpha():
                     returned_message = ph.read(msg)
                     line_bot_api.reply_message(event.reply_token, returned_message)
 
-                elif msg =="注音" and phonetic == True:
-                    phonetic = False
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text="注音模式已關閉"))
 
                 elif number_guessing_game.playing and msg.isdigit():
                     returned_message = number_guessing_game.guess(msg)
