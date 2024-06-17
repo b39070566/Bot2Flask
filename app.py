@@ -30,6 +30,9 @@ from linebot.models import MessageEvent, TextSendMessage, StickerSendMessage, Im
 import requests
 from bs4 import BeautifulSoup
 
+from phonetic as ph
+from phonetic import read
+
 app = Flask(__name__)
 
 # get channel_secret and channel_access_token from your environment variable
@@ -191,6 +194,22 @@ def callback():
                 if msg == "猜數字":
                     returned_message = number_guessing_game.start_game()
                     line_bot_api.reply_message(event.reply_token, returned_message)
+                
+                elif msg =="注音" and phonetic == False:
+                    phonetic = True
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text="注音模式已開啟"))
+
+                elif msg.isalpha() and phonetic == True:
+                    returned_message = ph.read(msg)
+                    line_bot_api.reply_message(event.reply_token, returned_message)
+
+                elif msg =="注音" and phonetic == True:
+                    phonetic = False
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text="注音模式已關閉"))
 
                 elif number_guessing_game.playing and msg.isdigit():
                     returned_message = number_guessing_game.guess(msg)
