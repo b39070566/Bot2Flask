@@ -196,6 +196,7 @@ def getInvoice():
 def callback():
     global ph_function
     global gpt_mode
+    global openai_key
 
     if request.method == 'POST':
         signature = request.headers['X-Line-Signature']
@@ -230,7 +231,7 @@ def callback():
                             event.reply_token,
                             TextSendMessage(text="注音模式已開啟"))
 
-                elif msg == "GPT":
+                elif msg == "GPT" or "gpt":
                     if gpt_mode:
                         gpt_mode = False
                         line_bot_api.reply_message(
