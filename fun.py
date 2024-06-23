@@ -155,8 +155,8 @@ def imgsearch(searchFor):
         # 隨機選擇一張圖片連結
         if imgsrcs:
             selected_img = random.choice(imgsrcs)
-            # 嘗試獲取 data-src 屬性作為圖片連結
-            img_url = selected_img.get('data-src')
+            # 嘗試獲取 src 屬性作為圖片連結
+            img_url = selected_img.get('src')
             if img_url:
                 return img_url
             else:
