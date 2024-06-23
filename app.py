@@ -110,11 +110,15 @@ def callback():
                 elif msg.startswith("找圖 "):
                     search_keyword = msg.split("找圖 ")[1].strip()
                     selected_image_url = fun.imgsearch(search_keyword)
-                    
+
                     if selected_image_url.startswith("http"):
                         line_bot_api.reply_message(event.reply_token, ImageSendMessage(original_content_url=selected_image_url, preview_image_url=selected_image_url))
                     else:
-                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=selected_image_url))
+                        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=selected_image_url)) 
+
+                elif msg == "說明":
+                    reply_message = fun.introduction()
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=reply_message))
                 
                 else:
                     line_bot_api.reply_message(event.reply_token, TextMessage(text=msg))
@@ -122,6 +126,7 @@ def callback():
         return 'OK'
     else:
         return abort(400)
+
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
