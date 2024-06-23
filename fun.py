@@ -114,11 +114,29 @@ def getInvoice():
     rr += "頭獎：{} {} {}".format(nums[2].text.strip(), nums[3].text.strip(), nums[4].text.strip())
     return rr
 
+import random
+import time
+
 def imgsearch(searchFor):
-    # 用户代理字符串，可以使用你的浏览器用户代理
+    # 使用者代理字串，可以使用您的瀏覽器使用者代理
+    user_agents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36',
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1',
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/92.0.4515.107 Mobile/15E148 Safari/604.1'
+    ]
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': random.choice(user_agents),
+        'Referer': 'https://zh-tw.photo-ac.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
     }
+
+    # 隨機等待一段時間，避免請求過於頻繁被網站封鎖
+    time.sleep(random.uniform(1, 3))
 
     # 取得 Photo AC 照片搜尋頁面的 HTML 內容
     url = f"https://zh-tw.photo-ac.com/search/{searchFor}?page=1&color=all&modelCount=-2&orderBy=random&shape=all"
@@ -126,24 +144,25 @@ def imgsearch(searchFor):
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # 使用 BeautifulSoup 解析 HTML 结构
+    # 使用 BeautifulSoup 解析 HTML 結構
     block = soup.find("div", class_="jsx-3990119274 gallery-images")
 
-    # 检查是否找到容器元素
+    # 檢查是否找到容器元素
     if block:
-        # 搜寻所有图片链接
+        # 搜尋所有圖片連結
         imgsrcs = block.find_all("img")
 
-        # 随机选择一张图片链接
+        # 隨機選擇一張圖片連結
         if imgsrcs:
             selected_img = random.choice(imgsrcs)
-            # 尝试获取 data-src 属性作为图片链接
+            # 嘗試獲取 data-src 屬性作為圖片連結
             img_url = selected_img.get('data-src')
             if img_url:
                 return img_url
             else:
-                return "未找到有效的图片链接"
+                return "未找到有效的圖片連結"
         else:
-            return "未找到图片链接"
+            return "未找到圖片連結"
     else:
         return "未找到指定的元素"
+
