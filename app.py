@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-#  Licensed under the Apache License, Version 2.0 (the "License"); you may
-#  not use this file except in compliance with the License. You may obtain
-#  a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
 #
 #       https://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-#  License for the specific language governing permissions and limitations
-#  under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
 
 import os
 import sys
@@ -19,12 +19,11 @@ from argparse import ArgumentParser
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, StickerSendMessage, ImageSendMessage
+from linebot.models import MessageEvent, TextMessage, StickerSendMessage, ImageSendMessage
 
 import random
 import requests
 from bs4 import BeautifulSoup
-
 import fun  # Import the functions from fun.py
 
 app = Flask(__name__)
@@ -61,50 +60,41 @@ def callback():
         for event in events:
             if isinstance(event, MessageEvent):
                 msg = event.message.text
+
                 if msg == "猜數字":
                     returned_message = number_guessing_game.start_game()
-                    line_bot_api.reply_message(event.reply_token, returned_message)
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
 
                 elif number_guessing_game.playing and msg.isdigit():
                     returned_message = number_guessing_game.guess(msg)
-                    line_bot_api.reply_message(event.reply_token, returned_message)
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
 
                 elif msg == "猜單字":
                     returned_message = word_guessing_game.start_game()
-                    line_bot_api.reply_message(event.reply_token, returned_message)
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
 
                 elif word_guessing_game.playing and msg.isalpha():
                     returned_message = word_guessing_game.guess(msg.lower())
-                    line_bot_api.reply_message(event.reply_token, returned_message)
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
 
                 elif msg == "統一發票" or msg == "發票":
                     Invoice = fun.getInvoice()
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text=Invoice))
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=Invoice))
 
                 elif msg == "油價":
                     GasolinePrice = fun.getGasolinePrice()
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text=GasolinePrice))
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=GasolinePrice))
 
                 elif msg == "新聞":
                     News = fun.getNews()
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text=News))
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=News))
 
                 elif msg == "軍事":
                     News2 = fun.getNews2()
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text=News2))
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=News2))
 
                 elif msg == "喵喵":
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        StickerSendMessage(package_id=1, sticker_id=2))
+                    line_bot_api.reply_message(event.reply_token, StickerSendMessage(package_id=1, sticker_id=2))
 
                 elif msg == "林襄":
                     image_urls = [
@@ -115,15 +105,18 @@ def callback():
                         'https://obs.line-scdn.net/0hMr3CcEnQEl0OOgaykLhtCjZsHiw9XAhULAxcaSw7Hj8hFlZYYQxBPi5uSHFwXgIMLgsObCpqH20gCQULMw/w1200',
                     ]
                     selected_image_url = random.choice(image_urls)
+                    line_bot_api.reply_message(event.reply_token, ImageSendMessage(original_content_url=selected_image_url, preview_image_url=selected_image_url))
 
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        ImageSendMessage(original_content_url=selected_image_url,
-                        preview_image_url=selected_image_url))
+                elif "找圖" in msg:
+                    search_keyword = msg.split("找圖 ")[1].strip()
+                    selected_image_url = fun.imgsearch(search_keyword)
+                    if selected_image_url.startswith("http"):
+                        line_bot_api.reply_message(event.reply_token, ImageSendMessage(original_content_url=selected_image_url, preview_image_url=selected_image_url))
+                    else:
+                        line_bot_api.reply_message(event.reply_token, TextMessage(text=selected_image_url))
+                
                 else:
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text=msg))
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=msg))
 
         return 'OK'
     else:
