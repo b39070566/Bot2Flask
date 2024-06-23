@@ -12,7 +12,8 @@ def read(word):
         phones = row.find_all('code')
         phone = [e.text for e in phones]
         s = " ".join( phone )
+        word = (f"{chinese} ==> {s}")
     # s = row.find('sub')
-        return chinese + "==>" + s
+        return word
     except:
-        return '查無此字' 
+        return "查無此字"

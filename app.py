@@ -24,11 +24,11 @@ from linebot.models import MessageEvent, TextMessage, StickerSendMessage, ImageS
 import random
 import requests
 from bs4 import BeautifulSoup
-import fun  # Import the functions from fun.py
 
 app = Flask(__name__)
 
 # get channel_secret and channel_access_token from your environment variable
+openai_key = os.getenv('OPENAI_KEY', None)
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 if channel_secret is None:
@@ -41,11 +41,136 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 parser = WebhookParser(channel_secret)
 
-word_guessing_game = fun.WordGuessingGame()
-number_guessing_game = fun.NumberGuessingGame()
+
+ph_function = False
+gpt_mode = False
+
+class WordGuessingGame:
+    def __init__(self):
+        self.playing = False
+        self.target_word = ""
+
+    def start_game(self):
+        self.playing = True
+        # Replace the word list with your own set of words
+        word_list = ["apple", "banana", "orange", "grape", "kiwi", "strawberry", "watermelon", "lemon", "mango", "peach", "pear", "guava", "pineapple"]
+        self.target_word = random.choice(word_list)
+        return TextSendMessage(text="猜單字，詞的長度為{}個字母，請輸入一個字母或整個單字 提示:水果".format(len(self.target_word)))
+
+
+    def guess(self, user_input):
+        if len(user_input) == 1:
+            # Guessing a single letter
+            if user_input in self.target_word:
+                return TextSendMessage(text="正確！{}在單字中".format(user_input))
+            else:
+                return TextSendMessage(text="錯誤！{}不在單字中".format(user_input))
+        elif len(user_input) == len(self.target_word):
+            # Guessing the entire word
+            if user_input == self.target_word:
+                self.playing = False
+                return TextSendMessage(text="猜中了！正確答案是{}".format(self.target_word))
+            else:
+                return TextSendMessage(text="錯誤！猜的單字不正確")
+        else:
+            return TextSendMessage(text="請輸入一個字母或整個單字")
+
+word_guessing_game = WordGuessingGame()
+
+class NumberGuessingGame:
+    def __init__(self):
+        self.playing = False
+        self.target_number = 0
+        self.counting_number = 0
+
+    def start_game(self):
+        self.counting_number = 0
+        self.playing = True
+        self.target_number = random.randint(1, 100)
+        return TextSendMessage(text="猜數字1-100")
+
+    def guess(self, user_input):
+        user_guess = int(user_input)
+        self.counting_number += 1
+        if user_guess > self.target_number:
+            return TextSendMessage(text="小一點")
+        elif user_guess < self.target_number:
+            return TextSendMessage(text="大一點")
+        elif user_guess == self.target_number:
+            self.playing = False
+            return TextSendMessage(text="猜中了! 你總共猜了{}次".format(self.counting_number))
+
+number_guessing_game = NumberGuessingGame()
+
+def getNews(n=10):
+    url = "https://www.cna.com.tw/list/aall.aspx"
+    html = requests.get(url)
+    html.encoding ='utf-8'
+
+    soup = BeautifulSoup(html.text, 'html.parser')
+    # print(soup.title.string.strip())
+    all = soup.find(id='jsMainList').find_all('li')
+
+    rr = ""
+    for idx,i in enumerate(all[:n]):
+        mlink = i.a.get('href')
+        mtext = i.find('h2').text
+        mdate = i.find('div',class_='date').text
+        rr += " ".join((str(idx+1), mdate, mtext, mlink, "\n"))
+    return rr
+
+def getNews2(n=3):
+    url = "https://www.mnd.gov.tw/"
+    html = requests.get(url)
+    html.encoding ='utf-8'
+
+    soup = BeautifulSoup(html.text, 'html.parser')
+    # print(soup.title.string.strip())
+    all = soup.select('#textlb01 ul li')
+
+    rr = ""
+    for idx,i in enumerate(all[:n]):
+        mlink = i.find('a', class_='headline')['href']
+        mtext = i.find('a', class_='headline').text
+        mdate = i.find('div', class_='date').text
+        rr += " ".join((str(idx + 1), mdate, mtext, mlink, "\n"))
+    return rr
+
+def getGasolinePrice():
+    url = "https://www2.moeaea.gov.tw/oil111"
+    html = requests.get(url)
+    soup = BeautifulSoup(html.text, 'html.parser')
+    price = soup.find_all("div", class_="grid_tab_content")
+
+    pp = price[1].find_all("strong")
+
+    rr = ""
+    rr += "92 無鉛汽油 " + pp[0].text +" 元/公升\n"
+    rr += "95 無鉛汽油 " + pp[1].text +" 元/公升\n"
+    rr += "98 無鉛汽油 " + pp[2].text +" 元/公升\n"
+    rr += "超級柴油 " + pp[3].text +" 元/公升"
+
+    return rr
+
+def getInvoice():
+    url = "https://invoice.etax.nat.gov.tw"
+    html = requests.get(url)
+    html.encoding ='utf-8'
+    soup = BeautifulSoup(html.text, 'html.parser')
+
+    period = soup.find("a", class_="etw-on")
+    rr = period.text+"\n"
+
+    nums = soup.find_all("p", class_="etw-tbiggest")
+    rr += "特別獎：" + nums[0].text + "\n"
+    rr += "特獎：" + nums[1].text + "\n"
+    rr += "頭獎：" + nums[2].text.strip() +" "+ nums[3].text.strip() +" "+ nums[4].text.strip()
+    return rr
 
 @app.route("/callback", methods=['POST'])
 def callback():
+    global play_nums, ranums  # Use the global keyword
+
     if request.method == 'POST':
         signature = request.headers['X-Line-Signature']
         body = request.get_data(as_text=True)
@@ -63,7 +188,7 @@ def callback():
 
                 if msg == "猜數字":
                     returned_message = number_guessing_game.start_game()
-                    line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
+                    line_bot_api.reply_message(event.reply_token, returned_message)
 
                 elif number_guessing_game.playing and msg.isdigit():
                     returned_message = number_guessing_game.guess(msg)
