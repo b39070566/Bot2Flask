@@ -114,10 +114,6 @@ def getInvoice():
     rr += "頭獎：{} {} {}".format(nums[2].text.strip(), nums[3].text.strip(), nums[4].text.strip())
     return rr
 
-import requests
-from bs4 import BeautifulSoup
-import random
-
 def imgsearch(searchFor):
     # 用户代理字符串，可以使用你的浏览器用户代理
     headers = {
