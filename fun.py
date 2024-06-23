@@ -114,9 +114,10 @@ def getInvoice():
     rr += "頭獎：{} {} {}".format(nums[2].text.strip(), nums[3].text.strip(), nums[4].text.strip())
     return rr
 
+
 def imgsearch(searchFor):
     url = f"https://zh-tw.photo-ac.com/search/{searchFor}?page=1&color=all&modelCount=-2&orderBy=random&shape=all"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -125,15 +126,7 @@ def imgsearch(searchFor):
     if block:
         imgsrcs = block.find_all("img", attrs={"data-src": True})
 
-        if imgsrcs:
-            selected_img = random.choice(imgsrcs)
-            img_url = selected_img.get('data-src')
-            if img_url:
-                return img_url
-            else:
-                return "未找到有效的圖片連結"
-        else:
-            return "未找到圖片連結"
-    else:
-        return "未找到指定的元素"
+        selected_img = random.choice(imgsrcs)
+        return selected_img.get('data-src')
 
+    return "網站可能暫時無法訪問"
