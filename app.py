@@ -107,7 +107,7 @@ def callback():
                     selected_image_url = random.choice(image_urls)
                     line_bot_api.reply_message(event.reply_token, ImageSendMessage(original_content_url=selected_image_url, preview_image_url=selected_image_url))
 
-                elif "找圖" in msg:
+                elif msg.startswith("找圖 "):
                     search_keyword = msg.split("找圖 ")[1].strip()
                     selected_image_url = fun.imgsearch(search_keyword)
                     if selected_image_url.startswith("http"):
