@@ -132,7 +132,7 @@ def callback():
                         line_bot_api.reply_message(event.reply_token, TextMessage(text="注音模式已開啟"))
 
                 elif ph_function:
-                    returned_message = fun.read(msg)
+                    returned_message = ph.read(msg)
                     line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
 
                 else:
