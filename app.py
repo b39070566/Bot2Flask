@@ -43,9 +43,12 @@ parser = WebhookParser(channel_secret)
 
 word_guessing_game = fun.WordGuessingGame()
 number_guessing_game = fun.NumberGuessingGame()
+ph_function = False  # Initialize the zhuyin mode flag
 
 @app.route("/callback", methods=['POST'])
 def callback():
+    global ph_function  # Declare the global variable
+
     if request.method == 'POST':
         signature = request.headers['X-Line-Signature']
         body = request.get_data(as_text=True)
@@ -119,7 +122,19 @@ def callback():
                 elif msg == "說明":
                     reply_message = fun.introduction()
                     line_bot_api.reply_message(event.reply_token, TextMessage(text=reply_message))
-                
+
+                elif msg == "注音":
+                    if ph_function:
+                        ph_function = False
+                        line_bot_api.reply_message(event.reply_token, TextMessage(text="注音模式已關閉"))
+                    else:
+                        ph_function = True
+                        line_bot_api.reply_message(event.reply_token, TextMessage(text="注音模式已開啟"))
+
+                elif ph_function:
+                    returned_message = fun.read(msg)
+                    line_bot_api.reply_message(event.reply_token, TextMessage(text=returned_message))
+
                 else:
                     line_bot_api.reply_message(event.reply_token, TextMessage(text=msg))
 
