@@ -25,6 +25,8 @@ import random
 import requests
 from bs4 import BeautifulSoup
 import fun  # Import the functions from fun.py
+import phonetic as ph
+from phonetic import read
 
 app = Flask(__name__)
 
