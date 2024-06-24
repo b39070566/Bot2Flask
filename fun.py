@@ -14,19 +14,21 @@ class WordGuessingGame:
         return "猜單字，詞的長度為{}個字母，請輸入一個字母或整個單字 提示:水果".format(len(self.target_word))
 
     def guess(self, user_input):
-        if len(user_input) == 1:
-            if user_input in self.target_word:
-                return "正確！{}在單字中".format(user_input)
+        cleaned_input = user_input.strip()
+        if len(cleaned_input) == 1:
+            if cleaned_input in self.target_word:
+                return "正確！{}在單字中".format(cleaned_input)
             else:
-                return "錯誤！{}不在單字中".format(user_input)
-        elif len(user_input) == len(self.target_word):
-            if user_input == self.target_word:
+                return "錯誤！{}不在單字中".format(cleaned_input)
+        elif len(cleaned_input) == len(self.target_word):
+            if cleaned_input == self.target_word:
                 self.playing = False
                 return "猜中了！正確答案是{}".format(self.target_word)
             else:
                 return "錯誤！猜的單字不正確"
         else:
-            return "請輸入一個字母或整個單字"
+            return "單字錯誤! 您可打一個字母來查看是否有在單字中"
+
 
 class NumberGuessingGame:
     def __init__(self):
@@ -43,14 +45,16 @@ class NumberGuessingGame:
     def guess(self, user_input):
         user_guess = int(user_input)
         self.counting_number += 1
-        if user_guess > self.target_number:
+        if user_guess > 100 or user_guess < 1:
+            return "您的輸入在範圍外"
+        elif user_guess > self.target_number:
             return "小一點"
         elif user_guess < self.target_number:
             return "大一點"
         elif user_guess == self.target_number:
             self.playing = False
             return "猜中了! 你總共猜了{}次".format(self.counting_number)
-
+            
 def getNews(n=10):
     url = "https://www.cna.com.tw/list/aall.aspx"
     html = requests.get(url)
@@ -62,10 +66,10 @@ def getNews(n=10):
     rr = ""
     for idx, i in enumerate(all[:n]):
         mlink = i.a.get('href')
-        mtext = i.find('h2').text
-        mdate = i.find('div', class_='date').text
-        rr += "{} {} {} {}\n".format(idx + 1, mdate, mtext, mlink)
-    return rr
+        mtext = i.find('h2').text.strip()
+        mdate = i.find('div', class_='date').text.strip()
+        rr += "{} {} {} {}\n\n".format(idx + 1, mdate, mtext, mlink)  # 注意這裡的兩個換行符
+    return rr.strip()
 
 def getNews2(n=3):
     url = "https://www.mnd.gov.tw/"
@@ -78,10 +82,10 @@ def getNews2(n=3):
     rr = ""
     for idx, i in enumerate(all[:n]):
         mlink = i.find('a', class_='headline')['href']
-        mtext = i.find('a', class_='headline').text
-        mdate = i.find('div', class_='date').text
-        rr += "{} {} {} {}\n".format(idx + 1, mdate, mtext, mlink)
-    return rr
+        mtext = i.find('a', class_='headline').text.strip()
+        mdate = i.find('div', class_='date').text.strip()
+        rr += "{} {} {} {}\n\n".format(idx + 1, mdate, mtext, mlink)  # 注意這裡的兩個換行符
+    return rr.strip()
 
 def getGasolinePrice():
     url = "https://www2.moeaea.gov.tw/oil111"
